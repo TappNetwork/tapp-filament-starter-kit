@@ -1,0 +1,102 @@
+name: Auto-fix Exception
+
+on:
+  repository_dispatch:
+    types: [nightwatch-exception]
+  workflow_dispatch:
+    inputs:
+      id:
+        description: 'Exception issue ref or id'
+        required: true
+      class:
+        description: 'Exception class'
+        required: true
+      message:
+        description: 'Exception message'
+        required: true
+      backtrace:
+        description: 'Backtrace as JSON string (may be file/line only)'
+        required: true
+      environment:
+        description: 'Environment name'
+        required: false
+        default: 'production'
+      url:
+        description: 'Exception tracking URL'
+        required: false
+        default: ''
+      pr_reviewers:
+        description: 'PR reviewers (comma-separated usernames or team slugs)'
+        required: false
+        default: 'TappNetwork/developers'
+
+# The public starter kit skips this job, so a dispatch there does not fail and
+# does not need a Cursor API key. Projects created from the kit keep the same
+# triggers. Without CURSOR_API_KEY the job exits successfully and does nothing.
+
+jobs:
+  autofix:
+    if: github.repository != 'TappNetwork/tapp-filament-starter-kit'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Launch Cursor cloud agent
+        env:
+          CURSOR_API_KEY: ${{ secrets.CURSOR_API_KEY }}
+          GH_PAT: ${{ secrets.GH_PAT }}
+          COMPOSER_AUTH: ${{ secrets.COMPOSER_AUTH }}
+          EXCEPTION_ID: ${{ github.event.client_payload.id || github.event.inputs.id }}
+          EXCEPTION_CLASS: ${{ github.event.client_payload.class || github.event.inputs.class }}
+          EXCEPTION_MESSAGE: ${{ github.event.client_payload.message || github.event.inputs.message }}
+          EXCEPTION_BACKTRACE: ${{ github.event.client_payload.backtrace || github.event.inputs.backtrace }}
+          EXCEPTION_ENVIRONMENT: ${{ github.event.client_payload.environment || github.event.inputs.environment || 'production' }}
+          EXCEPTION_URL: ${{ github.event.client_payload.url || github.event.inputs.url || '' }}
+          PR_REVIEWERS: ${{ github.event.client_payload.pr_reviewers || github.event.inputs.pr_reviewers || 'TappNetwork/developers' }}
+        run: |
+          if [ -z "$CURSOR_API_KEY" ]; then
+            echo "CURSOR_API_KEY is not set. Skipping auto-fix."
+            exit 0
+          fi
+
+          PROMPT=$(cat <<EOF
+          A production exception was reported. Fix the cause in this repository and open a pull request.
+
+          Exception id: ${EXCEPTION_ID}
+          Class: ${EXCEPTION_CLASS}
+          Environment: ${EXCEPTION_ENVIRONMENT}
+          Tracking URL: ${EXCEPTION_URL}
+          Message: ${EXCEPTION_MESSAGE}
+          Backtrace: ${EXCEPTION_BACKTRACE}
+
+          Request review from: ${PR_REVIEWERS}
+          EOF
+          )
+
+          ENV_VARS='{}'
+          if [ -n "$COMPOSER_AUTH" ]; then
+            ENV_VARS=$(jq -n --arg value "$COMPOSER_AUTH" '{COMPOSER_AUTH: $value}')
+          fi
+          if [ -n "$GH_PAT" ]; then
+            ENV_VARS=$(echo "$ENV_VARS" | jq --arg value "$GH_PAT" '. + {GH_TOKEN: $value}')
+          fi
+
+          NAME=$(printf 'Fix exception %s' "$EXCEPTION_ID" | cut -c1-100)
+
+          BODY=$(jq -n \
+            --arg text "$PROMPT" \
+            --arg url "https://github.com/${{ github.repository }}" \
+            --arg ref "${{ github.event.repository.default_branch || 'main' }}" \
+            --arg name "$NAME" \
+            --argjson envVars "$ENV_VARS" \
+            '{
+              prompt: {text: $text},
+              name: $name,
+              repos: [{url: $url, startingRef: $ref}],
+              autoCreatePR: true
+            } + (if $envVars == {} then {} else {envVars: $envVars} end)')
+
+          curl --fail-with-body --silent --show-error \
+            --request POST \
+            --url https://api.cursor.com/v1/agents \
+            --user "${CURSOR_API_KEY}:" \
+            --header 'Content-Type: application/json' \
+            --data "$BODY"

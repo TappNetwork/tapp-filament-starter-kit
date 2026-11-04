@@ -1,0 +1,30 @@
+{
+    "agents": [
+        "claude_code",
+        "cursor",
+        "opencode",
+        "copilot",
+        "codex",
+        "grok_build"
+    ],
+    "cloud": true,
+    "guidelines": true,
+    "mcp": true,
+    "nightwatch": true,
+    "packages": [
+        "filament/filament",
+        "spatie/laravel-medialibrary"
+    ],
+    "sail": false,
+    "skills": [
+        "infer-conventions",
+        "deploying-to-cloud",
+        "laravel-best-practices",
+        "testing-best-practices",
+        "configure-nightwatch",
+        "tailwindcss-development",
+        "filament-development",
+        "medialibrary-development",
+        "deploying-laravel-cloud"
+    ]
+}

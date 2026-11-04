@@ -1,0 +1,372 @@
+name: Auto-Update Dependencies
+
+on:
+  schedule:
+    # Runs weekly on Mondays at 9am UTC.
+    - cron: '0 9 * * 1'
+  workflow_dispatch:
+
+# The public starter kit repository skips this job so the weekly run does not
+# open or merge pull requests, and so it does not need Composer, ClickUp, or
+# Forge secrets. A project created from the kit has a different repository
+# name, and the job runs there. Missing optional secrets are skipped.
+
+permissions:
+  contents: write
+  pull-requests: write
+  checks: read
+
+jobs:
+  update:
+    if: github.repository != 'TappNetwork/tapp-filament-starter-kit'
+    runs-on: ubuntu-latest
+    env:
+      COMPOSER_PROCESS_TIMEOUT: 0
+      COMPOSER_NO_INTERACTION: 1
+      COMPOSER_NO_AUDIT: 1
+      APP_ENV: local
+      CACHE_STORE: file
+      CLICKUP_PERSONAL_TOKEN: fake-token-for-testing
+      HUBSPOT_ACCESS_TOKEN: fake-token-for-testing
+      HAS_NPM: false
+      HAS_BUN: true
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GH_PAT || github.token }}
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.5'
+          extensions: mbstring, xml, ctype, iconv, intl, pdo_sqlite, redis
+          coverage: none
+          ini-file: production
+
+      - name: Setup Composer Auth
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT || github.token }}
+          COMPOSER_AUTH_INPUT: ${{ secrets.COMPOSER_AUTH }}
+        run: |
+          if [ -n "$GH_TOKEN" ]; then
+            composer config --global github-oauth.github.com "$GH_TOKEN"
+          fi
+          if [ -n "$COMPOSER_AUTH_INPUT" ]; then
+            {
+              echo 'COMPOSER_AUTH<<EOF'
+              printf '%s\n' "$COMPOSER_AUTH_INPUT"
+              echo 'EOF'
+            } >> "$GITHUB_ENV"
+          elif [ -n "$GH_TOKEN" ]; then
+            echo "COMPOSER_AUTH={\"github-oauth\":{\"github.com\":\"$GH_TOKEN\"}}" >> "$GITHUB_ENV"
+          fi
+
+      - name: Update Composer Dependencies
+        run: composer update --no-interaction --prefer-dist
+
+      - name: Publish Filament LMS migrations
+        id: lms
+        run: |
+          echo "published=false" >> "$GITHUB_OUTPUT"
+
+          uses_filament_lms=false
+          if composer show tapp/filament-lms --quiet >/dev/null 2>&1; then
+            uses_filament_lms=true
+          elif [ -f composer.lock ] && grep -q '"name": "tapp/filament-lms"' composer.lock; then
+            uses_filament_lms=true
+          fi
+
+          if [ "$uses_filament_lms" != "true" ]; then
+            echo "tapp/filament-lms is not installed — skipping migration publish."
+            exit 0
+          fi
+
+          if [ ! -f artisan ]; then
+            echo "No artisan file — skipping filament-lms migration publish."
+            exit 0
+          fi
+
+          # Spatie Package Tools registers {package-name}-migrations from hasMigrations().
+          # Tapp apps publish with: php artisan vendor:publish --tag=filament-lms-migrations
+          TAG="filament-lms-migrations"
+          echo "tapp/filament-lms is installed — publishing --tag=$TAG (no --force)."
+
+          set +e
+          PUBLISH_OUTPUT=$(php artisan vendor:publish --tag="$TAG" --ansi --no-interaction 2>&1)
+          PUBLISH_EXIT=$?
+          set -e
+          printf '%s\n' "$PUBLISH_OUTPUT"
+
+          if echo "$PUBLISH_OUTPUT" | grep -qi "Unable to locate publishable resources"; then
+            echo "Tag $TAG is not registered in this app — skipping."
+            exit 0
+          fi
+
+          if [ "$PUBLISH_EXIT" -ne 0 ]; then
+            echo "vendor:publish exited $PUBLISH_EXIT — skipping (non-fatal)."
+            exit 0
+          fi
+
+          echo "published=true" >> "$GITHUB_OUTPUT"
+
+      - name: Run Composer Lint
+        id: lint
+        run: |
+          if composer config scripts.lint &>/dev/null; then
+            echo "has_lint=true" >> "$GITHUB_OUTPUT"
+            echo "composer lint script found — fixing code style before commit."
+            composer lint --no-interaction
+          else
+            echo "has_lint=false" >> "$GITHUB_OUTPUT"
+            echo "No composer lint script — skipping."
+          fi
+
+      - name: Run Pint on changed PHP
+        id: pint
+        run: |
+          echo "ran_pint=false" >> "$GITHUB_OUTPUT"
+
+          if [ ! -x vendor/bin/pint ] && [ ! -f vendor/bin/pint ]; then
+            echo "vendor/bin/pint not found — skipping."
+            exit 0
+          fi
+
+          mapfile -t php_files < <({
+            git diff --name-only --diff-filter=ACMR
+            git ls-files --others --exclude-standard
+          } | grep -E '\.php$' | sort -u || true)
+
+          filtered=()
+          for f in "${php_files[@]}"; do
+            [ -n "$f" ] && filtered+=("$f")
+          done
+          php_files=("${filtered[@]}")
+
+          if [ "${#php_files[@]}" -eq 0 ]; then
+            echo "No changed PHP files — skipping Pint."
+            exit 0
+          fi
+
+          echo "Running Pint on ${#php_files[@]} changed PHP file(s):"
+          printf '  %s\n' "${php_files[@]}"
+          php vendor/bin/pint -- "${php_files[@]}"
+          echo "ran_pint=true" >> "$GITHUB_OUTPUT"
+
+      - name: Check for Changes
+        id: changes
+        run: |
+          UNTRACKED=$(git ls-files --others --exclude-standard)
+          if git diff --quiet && [ -z "$UNTRACKED" ]; then
+            echo "has_changes=false" >> "$GITHUB_OUTPUT"
+            echo "No dependency changes detected — nothing to do."
+          else
+            echo "has_changes=true" >> "$GITHUB_OUTPUT"
+            CHANGED=$({
+              git diff --name-only
+              git ls-files --others --exclude-standard
+            } | tr '\n' ',' | sed 's/,$//')
+            echo "files=$CHANGED" >> "$GITHUB_OUTPUT"
+            echo "Changed: $CHANGED"
+          fi
+
+      - name: Configure Git
+        if: steps.changes.outputs.has_changes == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Create Branch, Commit, and Push
+        id: branch
+        if: steps.changes.outputs.has_changes == 'true'
+        run: |
+          BRANCH="deps/auto-update-$(date +%Y%m%d%H%M)"
+          echo "branch=$BRANCH" >> "$GITHUB_OUTPUT"
+          git checkout -b "$BRANCH"
+
+          # Never commit Composer auth written during CI
+          rm -f auth.json
+
+          git add -A
+          git commit -m "chore: auto-update dependencies $(date +%Y-%m-%d)"
+          git push origin "$BRANCH"
+
+      - name: Create Pull Request
+        id: pr
+        if: steps.changes.outputs.has_changes == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT || github.token }}
+          CHANGED: ${{ steps.changes.outputs.files }}
+          HAS_LINT: ${{ steps.lint.outputs.has_lint }}
+          RAN_PINT: ${{ steps.pint.outputs.ran_pint }}
+          PUBLISHED_LMS: ${{ steps.lms.outputs.published }}
+        run: |
+          TODAY=$(date +%Y-%m-%d)
+          REPO="${{ github.repository }}"
+
+          NPM_LINE=""
+          if [ "$HAS_NPM" = "true" ] && [ -f package.json ]; then
+            NPM_LINE="- \`npm update\` + \`npm audit fix\` — updated npm packages within version constraints"
+          fi
+
+          LINT_LINE=""
+          if [ "$HAS_LINT" = "true" ]; then
+            LINT_LINE="- \`composer lint\` — auto-fixed code style (e.g. migrations published during \`composer update\`)"
+          fi
+
+          PINT_LINE=""
+          if [ "$RAN_PINT" = "true" ]; then
+            PINT_LINE="- \`vendor/bin/pint\` — formatted changed PHP (including newly published migrations)"
+          fi
+
+          LMS_LINE=""
+          if [ "$PUBLISHED_LMS" = "true" ]; then
+            LMS_LINE="- \`php artisan vendor:publish --tag=filament-lms-migrations\` — published new Filament LMS migrations when the package is installed"
+          fi
+
+          BUN_LINE=""
+          if [ "$HAS_NPM" = "true" ] && [ "$HAS_BUN" = "true" ]; then
+            BUN_LINE="- Node.js and Bun were installed before \`composer update\`, because Composer lifecycle scripts can invoke JS tooling such as \`npm\`, \`bun\`, or \`bunx\`"
+          elif [ "$HAS_NPM" = "true" ]; then
+            BUN_LINE="- Node.js was installed before \`composer update\`, because Composer lifecycle scripts can invoke JS tooling"
+          fi
+
+          PR_URL=$(gh pr create \
+            --title "chore: auto-update dependencies $TODAY" \
+            --body "## Automated Dependency Update
+
+          Routine weekly dependency update for \`${REPO}\`.
+
+          **Modified files:** \`${CHANGED}\`
+
+          ### What ran
+          ${BUN_LINE}
+          - \`composer update\` — updated all Composer packages within version constraints
+          ${NPM_LINE}
+          ${LMS_LINE}
+          ${LINT_LINE}
+          ${PINT_LINE}
+
+          ### Review checklist
+          - [ ] Lock file diffs look reasonable (no unexpected major version jumps)
+          - [ ] No security advisories introduced by the updates
+
+          ---
+          *Auto-generated from this repository's auto-update workflow.*")
+
+          echo "pr_url=$PR_URL" >> "$GITHUB_OUTPUT"
+          echo "PR: $PR_URL"
+
+      - name: Wait for Checks and Merge
+        id: merge
+        if: steps.changes.outputs.has_changes == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT || github.token }}
+          PR_URL: ${{ steps.pr.outputs.pr_url }}
+        run: |
+          wait_for_checks_to_appear() {
+            echo "Waiting for checks to appear on PR..."
+            for i in $(seq 1 20); do
+              CHECK_COUNT=$(gh pr checks "$PR_URL" 2>/dev/null | grep -c '.' || true)
+              if [ "$CHECK_COUNT" -gt 0 ]; then
+                echo "Checks found — watching for completion."
+                return 0
+              fi
+              echo "No checks yet, retrying in 30s... ($i/20)"
+              sleep 30
+            done
+            echo "No checks appeared after waiting."
+            return 1
+          }
+
+          for attempt in 1 2 3; do
+            SHA_BEFORE=$(gh pr view "$PR_URL" --json headRefOid --jq .headRefOid)
+            echo "Watching checks for $SHA_BEFORE (attempt $attempt/3)."
+            wait_for_checks_to_appear || true
+
+            if gh pr checks "$PR_URL" --watch; then
+              echo "All checks passed — merging."
+              gh pr merge --squash "$PR_URL"
+              echo "merged=true" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+
+            echo "Checks did not pass on $SHA_BEFORE."
+            echo "Waiting 90s in case a Pint autofix bot pushes a follow-up commit..."
+            sleep 90
+            SHA_AFTER=$(gh pr view "$PR_URL" --json headRefOid --jq .headRefOid)
+            if [ "$SHA_AFTER" != "$SHA_BEFORE" ] && [ "$attempt" -lt 3 ]; then
+              echo "New commit detected ($SHA_AFTER) — re-waiting for checks."
+              continue
+            fi
+
+            echo "merged=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::PR checks failed — leaving $PR_URL open for manual review. Scheduled run stays green so this does not email as a failed main-branch workflow."
+            {
+              echo "### Dependency update PR left open"
+              echo
+              echo "Checks did not pass. The PR was left open for review and this scheduled job did not fail."
+              echo
+              echo "PR: $PR_URL"
+            } >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          done
+
+      - name: Notify ClickUp - Success
+        if: steps.merge.outputs.merged == 'true'
+        env:
+          CLICKUP_API_TOKEN: ${{ secrets.CLICKUP_API_TOKEN }}
+          CLICKUP_WORKSPACE_ID: ${{ vars.CLICKUP_WORKSPACE_ID }}
+          CLICKUP_CHANNEL_ID: ${{ vars.CLICKUP_CHANNEL_ID }}
+          PR_URL: ${{ steps.pr.outputs.pr_url }}
+          REPO: ${{ github.repository }}
+          FILES: ${{ steps.changes.outputs.files }}
+        run: |
+          if [ -z "$CLICKUP_API_TOKEN" ] || [ -z "$CLICKUP_WORKSPACE_ID" ] || [ -z "$CLICKUP_CHANNEL_ID" ]; then
+            echo "ClickUp token or repository variables are not set. Skipping notification."
+            exit 0
+          fi
+
+          curl -sf -X POST \
+            "https://api.clickup.com/api/v3/workspaces/${CLICKUP_WORKSPACE_ID}/chat/channels/${CLICKUP_CHANNEL_ID}/messages" \
+            -H "Authorization: $CLICKUP_API_TOKEN" \
+            -H "Content-Type: application/json" \
+            -d "{
+              \"content_format\": \"text/md\",
+              \"content\": \"✅ **${REPO}** — dependency update merged and deploying\n\nPR: ${PR_URL}\nFiles: \`${FILES}\`\"
+            }" || echo "ClickUp notification failed — non-fatal, continuing."
+
+      - name: Notify ClickUp - Checks Failed
+        if: steps.merge.outputs.merged == 'false'
+        env:
+          CLICKUP_API_TOKEN: ${{ secrets.CLICKUP_API_TOKEN }}
+          CLICKUP_WORKSPACE_ID: ${{ vars.CLICKUP_WORKSPACE_ID }}
+          CLICKUP_CHANNEL_ID: ${{ vars.CLICKUP_CHANNEL_ID }}
+          PR_URL: ${{ steps.pr.outputs.pr_url }}
+          REPO: ${{ github.repository }}
+          FILES: ${{ steps.changes.outputs.files }}
+        run: |
+          if [ -z "$CLICKUP_API_TOKEN" ] || [ -z "$CLICKUP_WORKSPACE_ID" ] || [ -z "$CLICKUP_CHANNEL_ID" ]; then
+            echo "ClickUp token or repository variables are not set. Skipping notification."
+            exit 0
+          fi
+
+          curl -sf -X POST \
+            "https://api.clickup.com/api/v3/workspaces/${CLICKUP_WORKSPACE_ID}/chat/channels/${CLICKUP_CHANNEL_ID}/messages" \
+            -H "Authorization: $CLICKUP_API_TOKEN" \
+            -H "Content-Type: application/json" \
+            -d "{
+              \"content_format\": \"text/md\",
+              \"content\": \"⚠️ **${REPO}** — dependency update checks failed. PR left open.\n\nPR: ${PR_URL}\nFiles: \`${FILES}\`\"
+            }" || echo "ClickUp notification failed — non-fatal, continuing."
+
+      - name: Trigger Forge Deploy
+        if: steps.merge.outputs.merged == 'true'
+        env:
+          FORGE_DEPLOY_WEBHOOK: ${{ secrets.FORGE_DEPLOY_WEBHOOK }}
+        run: |
+          if [ -z "$FORGE_DEPLOY_WEBHOOK" ]; then
+            echo "FORGE_DEPLOY_WEBHOOK not configured — skipping."
+            exit 0
+          fi
+          curl -sf -X POST "$FORGE_DEPLOY_WEBHOOK" || echo "Forge webhook failed — non-fatal, continuing."

@@ -1,0 +1,23 @@
+includes:
+    - vendor/larastan/larastan/extension.neon
+    - vendor/nesbot/carbon/extension.neon
+    - phar://phpstan.phar/conf/bleedingEdge.neon
+
+parameters:
+
+    paths:
+        - app
+        - bootstrap/app.php
+        - config
+        - database
+        - public
+        - routes
+
+    excludePaths:
+        - database/migrations/2026_08_10_182321_create_permission_tables.php
+        - database/migrations/2026_08_10_182322_create_audits_table.php
+        - database/migrations/2026_08_10_182322_create_media_table.php
+
+    level: max
+
+    tmpDir: /tmp/phpstan
