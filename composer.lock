@@ -9652,16 +9652,16 @@
         },
         {
             "name": "tapp/filament-maillog",
-            "version": "v2.2.4",
+            "version": "v2.2.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/TappNetwork/filament-maillog.git",
-                "reference": "000928484a1231d4760a722f70b231a318da4bb9"
+                "reference": "751a2a2a4c998dca8b670370e85984e7f23dc61e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/TappNetwork/filament-maillog/zipball/000928484a1231d4760a722f70b231a318da4bb9",
-                "reference": "000928484a1231d4760a722f70b231a318da4bb9",
+                "url": "https://api.github.com/repos/TappNetwork/filament-maillog/zipball/751a2a2a4c998dca8b670370e85984e7f23dc61e",
+                "reference": "751a2a2a4c998dca8b670370e85984e7f23dc61e",
                 "shasum": ""
             },
             "require": {
@@ -9724,7 +9724,7 @@
             ],
             "support": {
                 "issues": "https://github.com/TappNetwork/filament-maillog/issues",
-                "source": "https://github.com/TappNetwork/filament-maillog/tree/v2.2.4"
+                "source": "https://github.com/TappNetwork/filament-maillog/tree/v2.2.5"
             },
             "funding": [
                 {
@@ -9732,7 +9732,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2026-08-21T13:37:29+00:00",
+            "time": "2026-11-10T12:03:39+00:00",
             "published-time": "2026-08-21T13:37:43+00:00"
         },
         {
