@@ -29,7 +29,7 @@ composer dev
 
 In [Laravel Herd](https://herd.laravel.com), create a new site, choose the starter kit **Custom...**, and enter `tapp/tapp-filament-starter-kit`.
 
-Or use Composer directly. `post-create-project-cmd` generates the app key, creates the SQLite file, and migrates. `composer setup` installs Bun dependencies and builds assets.
+Or use Composer directly. `post-create-project-cmd` generates the app key, creates the SQLite file, migrates, and seeds. `composer setup` installs Bun dependencies, builds assets, migrates, and seeds. The first seed prints the local admin email and password in the terminal.
 
 ```bash
 composer create-project tapp/tapp-filament-starter-kit my-app
@@ -38,7 +38,7 @@ composer setup
 composer dev
 ```
 
-Sign in at `/app/login` (register at `/app/register`). After `php artisan db:seed`, the local admin is `admin@dev.com` / `secret`. The admin panel is at `/admin` and requires the Admin role. Set `FILAMENT_REGISTRATION=false` to disable self-registration.
+Sign in at `/app/login` (register at `/app/register`). The default admin email is `admin@dev.com`. Set `ADMIN_EMAIL` and `ADMIN_PASSWORD` in `.env` before seeding to choose them. Leave `ADMIN_PASSWORD` empty to generate a password. That password is printed once, in the seed output, when the admin user is created. The admin panel is at `/admin` and requires the Admin role. Set `FILAMENT_REGISTRATION=false` to disable self-registration. To set a new password, see [`docs/POST_INSTALL.md`](docs/POST_INSTALL.md).
 
 ### Optional: Browser Testing
 

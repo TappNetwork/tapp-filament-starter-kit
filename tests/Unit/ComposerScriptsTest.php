@@ -39,11 +39,15 @@ test('a fresh project generates an app key, sqlite file, and migrations', functi
     $installerHooks = $composer['extra']['laravel']['installer']['post-create-project'] ?? [];
     $commands = implode("\n", $postCreate);
 
+    $setup = implode("\n", $composer['scripts']['setup'] ?? []);
+
     expect($postCreate)->not->toBeEmpty()
         ->and($commands)->toContain('key:generate')
         ->and($commands)->toContain('database.sqlite')
         ->and($commands)->toContain('migrate')
-        ->and($installerHooks)->toBe($postCreate);
+        ->and($commands)->toContain('--seed')
+        ->and($installerHooks)->toBe($postCreate)
+        ->and($setup)->toContain('db:seed');
 });
 
 test('boost update does not restore filament blueprint skills', function (): void {

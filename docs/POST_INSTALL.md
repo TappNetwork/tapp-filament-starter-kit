@@ -4,7 +4,17 @@ Anyone can follow the first sections. Steps that only a Tapp team needs (Laravel
 
 Delete `.tapp/post-install-pending` when you have finished the steps you need.
 
-Sign in at `/app/login` and register at `/app/register`. After `php artisan db:seed`, log in as `admin@dev.com` / `secret`. The admin panel (`/admin`) has no login, registration, password reset, or profile pages. Guests are sent to the app panel to authenticate. Only users with the Admin role can open `/admin`.
+Sign in at `/app/login` and register at `/app/register`. `php artisan db:seed` creates a local admin and prints the email and password in the terminal. `composer setup`, `laravel new --using=tapp/tapp-filament-starter-kit`, and a Herd install run that seeder. The default email is `admin@dev.com`. Set `ADMIN_EMAIL` and `ADMIN_PASSWORD` in `.env` before you seed to choose them. Leave `ADMIN_PASSWORD` empty to generate a password. The plaintext password is printed once, when that user is created. A later seed keeps the existing password.
+
+The admin panel (`/admin`) has no login, registration, password reset, or profile pages. Guests are sent to the app panel to authenticate. Only users with the Admin role can open `/admin`.
+
+To set a new password, run `php artisan tinker` and save the user. The password is hashed on save:
+
+```php
+$user = App\Models\User::query()->where('email', 'admin@dev.com')->first();
+$user->password = 'a-new-password';
+$user->save();
+```
 
 Set `FILAMENT_REGISTRATION=false` in `.env` to disable self-registration. Invites from the admin panel still work. New registrations must verify their email before using the app panel.
 
