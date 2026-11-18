@@ -17,6 +17,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
 use OwenIt\Auditing\Contracts\Auditable;
 use Rappasoft\LaravelAuthenticationLog\Traits\AuthenticationLoggable;
 use Spatie\MediaLibrary\HasMedia;
@@ -45,6 +46,7 @@ use Spatie\Permission\Traits\HasRoles;
 final class User extends Authenticatable implements Auditable, FilamentUser, HasMedia, MustVerifyEmail
 {
     use AuthenticationLoggable;
+    use HasApiTokens;
 
     /** @use HasFactory<UserFactory> */
     use HasFactory;
