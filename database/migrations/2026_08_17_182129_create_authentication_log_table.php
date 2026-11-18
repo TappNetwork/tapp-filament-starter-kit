@@ -12,7 +12,7 @@ return new class extends Migration
     {
         Schema::create('authentication_log', function (Blueprint $table): void {
             $table->id();
-            $table->uuidMorphs('authenticatable');
+            $table->uuidMorphs('authenticatable', 'authentication_log_authenticatable_index');
             $table->string('ip_address', 45)->nullable();
             $table->text('user_agent')->nullable();
             $table->string('device_id')->nullable()->index();

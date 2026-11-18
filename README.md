@@ -41,6 +41,8 @@ composer dev
 
 Sign in at `/app/login` (register at `/app/register`). The default admin email is `admin@dev.com`. Set `ADMIN_EMAIL` and `ADMIN_PASSWORD` in `.env` before seeding to choose them. Leave `ADMIN_PASSWORD` empty to generate a password. That password is printed once, in the seed output, when the admin user is created. The admin panel is at `/admin` and requires the Admin role. Set `FILAMENT_REGISTRATION=false` to disable self-registration. To set a new password, see [`docs/POST_INSTALL.md`](docs/POST_INSTALL.md).
 
+To host the app on Laravel Cloud, follow [`docs/LARAVEL_CLOUD.md`](docs/LARAVEL_CLOUD.md). Local Herd and SQLite setup stays as described above.
+
 ### Optional: Browser Testing
 
 ```bash
@@ -70,7 +72,7 @@ This kit does not install a tool-call log. Model changes are already on the admi
 
 ## Post-install
 
-After install, see [`docs/POST_INSTALL.md`](docs/POST_INSTALL.md) for Nightwatch, queues, and Laravel Cloud. Tapp Portal, private packages, and organization secrets are marked optional for Tapp teams. Filament Blueprint is not included. Licensed developers can add it with the steps in that doc.
+After install, see [`docs/POST_INSTALL.md`](docs/POST_INSTALL.md) for Nightwatch, queues, and optional Tapp setup. To deploy on Laravel Cloud, follow [`docs/LARAVEL_CLOUD.md`](docs/LARAVEL_CLOUD.md). Tapp Portal, private packages, and organization secrets are marked optional for Tapp teams. Filament Blueprint is not included. Licensed developers can add it with the steps in that doc.
 
 ## Tooling
 

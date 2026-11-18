@@ -42,10 +42,12 @@ For production, keep `QUEUE_CONNECTION=database`, or point it at Redis, or use a
 
 ## If you host on Laravel Cloud
 
-1. Create a Laravel Cloud application connected to this repository.
-2. Keep push-to-deploy on (Cloud's default). Every push to `main` deploys.
-3. In the Cloud environment, choose **Add compute**, then **Managed queue**, then Flex. Pick a size, for example 256 MiB with 0 to 3 workers, then deploy.
-4. Cloud sets `QUEUE_CONNECTION=cloud`. Failed jobs show up in the environment's **Queues** dashboard.
+Follow [`LARAVEL_CLOUD.md`](LARAVEL_CLOUD.md) to create the application, attach a database, confirm PHP 8.5, and set the build and deploy commands.
+
+For a managed queue:
+
+1. In the Cloud environment, choose **Add compute**, then **Managed queue**, then Flex. Pick a size, for example 256 MiB with 0 to 3 workers, then deploy.
+2. Cloud sets `QUEUE_CONNECTION=cloud`. Failed jobs show up in the environment's **Queues** dashboard.
 
 Cloud's build reads private Composer credentials from Cloud secrets in the build environment. Do not write credentials inline in a build command. This kit does not need those secrets.
 
