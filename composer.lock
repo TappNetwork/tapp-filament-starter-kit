@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "660bf7920d0178c67938644e56b0eb98",
+    "content-hash": "c5bd78f710158c3d13f74ff1bad01304",
     "packages": [
         {
             "name": "anourvalar/eloquent-serialize",
@@ -2838,36 +2838,36 @@
         },
         {
             "name": "laravel/mcp",
-            "version": "v1.1.2",
+            "version": "v1.2.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/mcp.git",
-                "reference": "ab9238ce6c89095679651dd3d19d67641d73a436"
+                "reference": "a8057f222549e42384d49482042d762a547aaf2a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/mcp/zipball/ab9238ce6c89095679651dd3d19d67641d73a436",
-                "reference": "ab9238ce6c89095679651dd3d19d67641d73a436",
+                "url": "https://api.github.com/repos/laravel/mcp/zipball/a8057f222549e42384d49482042d762a547aaf2a",
+                "reference": "a8057f222549e42384d49482042d762a547aaf2a",
                 "shasum": ""
             },
             "require": {
                 "ext-json": "*",
                 "ext-mbstring": "*",
-                "illuminate/console": "^11.45.3|^12.41.1|^13.0",
-                "illuminate/container": "^11.45.3|^12.41.1|^13.0",
-                "illuminate/contracts": "^11.45.3|^12.41.1|^13.0",
-                "illuminate/http": "^11.45.3|^12.41.1|^13.0",
+                "illuminate/console": "^12.41.1|^13.0",
+                "illuminate/container": "^12.41.1|^13.0",
+                "illuminate/contracts": "^12.41.1|^13.0",
+                "illuminate/http": "^12.41.1|^13.0",
                 "illuminate/json-schema": "^12.41.1|^13.0",
-                "illuminate/routing": "^11.45.3|^12.41.1|^13.0",
-                "illuminate/support": "^11.45.3|^12.41.1|^13.0",
-                "illuminate/validation": "^11.45.3|^12.41.1|^13.0",
+                "illuminate/routing": "^12.41.1|^13.0",
+                "illuminate/support": "^12.41.1|^13.0",
+                "illuminate/validation": "^12.41.1|^13.0",
                 "php": "^8.2",
                 "symfony/process": "^7.4.5|^8.0.5"
             },
             "require-dev": {
                 "jasonmccreary/double": "^1.0",
-                "laravel/pint": "^1.20",
-                "orchestra/testbench": "^9.15|^10.8|^11.0",
+                "laravel/pint": "^1.20,!=1.32.2",
+                "orchestra/testbench": "^10.8|^11.0",
                 "pestphp/pest": "^3.8.5|^4.3.2",
                 "phpstan/phpstan": "^2.1.27",
                 "rector/rector": "^2.2.4"
@@ -2909,8 +2909,8 @@
                 "issues": "https://github.com/laravel/mcp/issues",
                 "source": "https://github.com/laravel/mcp"
             },
-            "time": "2026-10-26T17:48:48+00:00",
-            "published-time": "2026-10-26T18:03:18+00:00"
+            "time": "2026-11-17T16:36:18+00:00",
+            "published-time": "2026-11-17T18:52:14+00:00"
         },
         {
             "name": "laravel/nightwatch",
@@ -9878,16 +9878,16 @@
         },
         {
             "name": "tapp/filament-mcp",
-            "version": "v0.1.3",
+            "version": "v0.1.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/TappNetwork/filament-mcp.git",
-                "reference": "6a9f933e54efd6f4b7e0aec2e2015f5a218950f8"
+                "reference": "936cf11ec9191961e8d28e861972d25b5943d117"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/TappNetwork/filament-mcp/zipball/6a9f933e54efd6f4b7e0aec2e2015f5a218950f8",
-                "reference": "6a9f933e54efd6f4b7e0aec2e2015f5a218950f8",
+                "url": "https://api.github.com/repos/TappNetwork/filament-mcp/zipball/936cf11ec9191961e8d28e861972d25b5943d117",
+                "reference": "936cf11ec9191961e8d28e861972d25b5943d117",
                 "shasum": ""
             },
             "require": {
@@ -9947,10 +9947,10 @@
             ],
             "support": {
                 "issues": "https://github.com/TappNetwork/filament-mcp/issues",
-                "source": "https://github.com/TappNetwork/filament-mcp/tree/v0.1.3"
+                "source": "https://github.com/TappNetwork/filament-mcp/tree/v0.1.4"
             },
-            "time": "2026-11-02T15:33:19+00:00",
-            "published-time": "2026-11-02T15:33:36+00:00"
+            "time": "2026-11-18T12:17:33+00:00",
+            "published-time": "2026-11-18T12:17:55+00:00"
         },
         {
             "name": "tijsverkoyen/css-to-inline-styles",
