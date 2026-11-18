@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "2793c7337906ea7507bb77eb77f04e80",
+    "content-hash": "660bf7920d0178c67938644e56b0eb98",
     "packages": [
         {
             "name": "anourvalar/eloquent-serialize",
@@ -2837,6 +2837,82 @@
             "published-time": "2026-10-27T14:05:37+00:00"
         },
         {
+            "name": "laravel/mcp",
+            "version": "v1.1.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/laravel/mcp.git",
+                "reference": "ab9238ce6c89095679651dd3d19d67641d73a436"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/laravel/mcp/zipball/ab9238ce6c89095679651dd3d19d67641d73a436",
+                "reference": "ab9238ce6c89095679651dd3d19d67641d73a436",
+                "shasum": ""
+            },
+            "require": {
+                "ext-json": "*",
+                "ext-mbstring": "*",
+                "illuminate/console": "^11.45.3|^12.41.1|^13.0",
+                "illuminate/container": "^11.45.3|^12.41.1|^13.0",
+                "illuminate/contracts": "^11.45.3|^12.41.1|^13.0",
+                "illuminate/http": "^11.45.3|^12.41.1|^13.0",
+                "illuminate/json-schema": "^12.41.1|^13.0",
+                "illuminate/routing": "^11.45.3|^12.41.1|^13.0",
+                "illuminate/support": "^11.45.3|^12.41.1|^13.0",
+                "illuminate/validation": "^11.45.3|^12.41.1|^13.0",
+                "php": "^8.2",
+                "symfony/process": "^7.4.5|^8.0.5"
+            },
+            "require-dev": {
+                "jasonmccreary/double": "^1.0",
+                "laravel/pint": "^1.20",
+                "orchestra/testbench": "^9.15|^10.8|^11.0",
+                "pestphp/pest": "^3.8.5|^4.3.2",
+                "phpstan/phpstan": "^2.1.27",
+                "rector/rector": "^2.2.4"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "aliases": {
+                        "Mcp": "Laravel\\Mcp\\Facades\\Mcp"
+                    },
+                    "providers": [
+                        "Laravel\\Mcp\\Server\\McpServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Laravel\\Mcp\\": "src/",
+                    "Laravel\\Mcp\\Server\\": "src/Server/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Taylor Otwell",
+                    "email": "taylor@laravel.com"
+                }
+            ],
+            "description": "Rapidly build MCP servers for your Laravel applications.",
+            "homepage": "https://github.com/laravel/mcp",
+            "keywords": [
+                "laravel",
+                "mcp"
+            ],
+            "support": {
+                "issues": "https://github.com/laravel/mcp/issues",
+                "source": "https://github.com/laravel/mcp"
+            },
+            "time": "2026-10-26T17:48:48+00:00",
+            "published-time": "2026-10-26T18:03:18+00:00"
+        },
+        {
             "name": "laravel/nightwatch",
             "version": "v1.30.6",
             "source": {
@@ -2989,6 +3065,71 @@
             },
             "time": "2026-10-09T14:45:13+00:00",
             "published-time": "2026-10-13T15:18:36+00:00"
+        },
+        {
+            "name": "laravel/sanctum",
+            "version": "v4.5.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/laravel/sanctum.git",
+                "reference": "a8f7ef1bd5f8b78159effa1ffae851b0dc72cd8b"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/laravel/sanctum/zipball/a8f7ef1bd5f8b78159effa1ffae851b0dc72cd8b",
+                "reference": "a8f7ef1bd5f8b78159effa1ffae851b0dc72cd8b",
+                "shasum": ""
+            },
+            "require": {
+                "ext-json": "*",
+                "illuminate/console": "^12.0|^13.0",
+                "illuminate/contracts": "^12.0|^13.0",
+                "illuminate/database": "^12.0|^13.0",
+                "illuminate/support": "^12.0|^13.0",
+                "php": "^8.2",
+                "symfony/console": "^7.0|^8.0"
+            },
+            "require-dev": {
+                "jasonmccreary/double": "^1.0",
+                "mockery/mockery": "^1.6",
+                "orchestra/testbench": "^10.8|^11.0",
+                "phpstan/phpstan": "^1.10"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Laravel\\Sanctum\\SanctumServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Laravel\\Sanctum\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Taylor Otwell",
+                    "email": "taylor@laravel.com"
+                }
+            ],
+            "description": "Laravel Sanctum provides a featherweight authentication system for SPAs and simple APIs.",
+            "keywords": [
+                "auth",
+                "laravel",
+                "sanctum"
+            ],
+            "support": {
+                "issues": "https://github.com/laravel/sanctum/issues",
+                "source": "https://github.com/laravel/sanctum"
+            },
+            "time": "2026-11-11T14:11:40+00:00",
+            "published-time": "2026-11-17T15:20:05+00:00"
         },
         {
             "name": "laravel/serializable-closure",
@@ -9736,6 +9877,82 @@
             "published-time": "2026-08-21T13:37:43+00:00"
         },
         {
+            "name": "tapp/filament-mcp",
+            "version": "v0.1.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/TappNetwork/filament-mcp.git",
+                "reference": "6a9f933e54efd6f4b7e0aec2e2015f5a218950f8"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/TappNetwork/filament-mcp/zipball/6a9f933e54efd6f4b7e0aec2e2015f5a218950f8",
+                "reference": "6a9f933e54efd6f4b7e0aec2e2015f5a218950f8",
+                "shasum": ""
+            },
+            "require": {
+                "filament/filament": "^4.14||^5.9",
+                "illuminate/contracts": "^12.0||^13.0",
+                "laravel/mcp": "^1.0",
+                "php": "^8.3"
+            },
+            "require-dev": {
+                "larastan/larastan": "^3.0",
+                "laravel/passport": "^13.0",
+                "laravel/pint": "^1.14",
+                "laravel/sanctum": "^4.0",
+                "nunomaduro/collision": "^8.1.1",
+                "orchestra/testbench": "^10.0||^11.0",
+                "pestphp/pest": "^3.0||^4.0",
+                "pestphp/pest-plugin-laravel": "^3.0||^4.0",
+                "pestphp/pest-plugin-livewire": "^3.0||^4.0",
+                "phpstan/extension-installer": "^1.3||^2.0",
+                "spatie/laravel-activitylog": "^4.10||^5.0"
+            },
+            "suggest": {
+                "laravel/passport": "Passport ^13 personal access tokens. Set filament-mcp.auth.driver to passport and run php artisan passport:client --personal.",
+                "laravel/sanctum": "Required for the default sanctum driver (^4). Install it before php artisan filament-mcp:install.",
+                "spatie/laravel-activitylog": "Logs every MCP tool call made with a token."
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Tapp\\FilamentMcp\\FilamentMcpServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Tapp\\FilamentMcp\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Tapp Network"
+                }
+            ],
+            "description": "MCP for Laravel apps in Filament: a token page with one Sanctum ability per tool, setup steps for any AI agent, tool-call enforcement and an optional audit log.",
+            "homepage": "https://github.com/TappNetwork/filament-mcp",
+            "keywords": [
+                "filament",
+                "laravel",
+                "mcp",
+                "sanctum",
+                "tapp"
+            ],
+            "support": {
+                "issues": "https://github.com/TappNetwork/filament-mcp/issues",
+                "source": "https://github.com/TappNetwork/filament-mcp/tree/v0.1.3"
+            },
+            "time": "2026-11-02T15:33:19+00:00",
+            "published-time": "2026-11-02T15:33:36+00:00"
+        },
+        {
             "name": "tijsverkoyen/css-to-inline-styles",
             "version": "v2.4.0",
             "source": {
@@ -12216,82 +12433,6 @@
             },
             "time": "2026-10-29T18:31:16+00:00",
             "published-time": "2026-10-29T18:32:20+00:00"
-        },
-        {
-            "name": "laravel/mcp",
-            "version": "v1.1.2",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/laravel/mcp.git",
-                "reference": "ab9238ce6c89095679651dd3d19d67641d73a436"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/laravel/mcp/zipball/ab9238ce6c89095679651dd3d19d67641d73a436",
-                "reference": "ab9238ce6c89095679651dd3d19d67641d73a436",
-                "shasum": ""
-            },
-            "require": {
-                "ext-json": "*",
-                "ext-mbstring": "*",
-                "illuminate/console": "^11.45.3|^12.41.1|^13.0",
-                "illuminate/container": "^11.45.3|^12.41.1|^13.0",
-                "illuminate/contracts": "^11.45.3|^12.41.1|^13.0",
-                "illuminate/http": "^11.45.3|^12.41.1|^13.0",
-                "illuminate/json-schema": "^12.41.1|^13.0",
-                "illuminate/routing": "^11.45.3|^12.41.1|^13.0",
-                "illuminate/support": "^11.45.3|^12.41.1|^13.0",
-                "illuminate/validation": "^11.45.3|^12.41.1|^13.0",
-                "php": "^8.2",
-                "symfony/process": "^7.4.5|^8.0.5"
-            },
-            "require-dev": {
-                "jasonmccreary/double": "^1.0",
-                "laravel/pint": "^1.20",
-                "orchestra/testbench": "^9.15|^10.8|^11.0",
-                "pestphp/pest": "^3.8.5|^4.3.2",
-                "phpstan/phpstan": "^2.1.27",
-                "rector/rector": "^2.2.4"
-            },
-            "type": "library",
-            "extra": {
-                "laravel": {
-                    "aliases": {
-                        "Mcp": "Laravel\\Mcp\\Facades\\Mcp"
-                    },
-                    "providers": [
-                        "Laravel\\Mcp\\Server\\McpServiceProvider"
-                    ]
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Laravel\\Mcp\\": "src/",
-                    "Laravel\\Mcp\\Server\\": "src/Server/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Taylor Otwell",
-                    "email": "taylor@laravel.com"
-                }
-            ],
-            "description": "Rapidly build MCP servers for your Laravel applications.",
-            "homepage": "https://github.com/laravel/mcp",
-            "keywords": [
-                "laravel",
-                "mcp"
-            ],
-            "support": {
-                "issues": "https://github.com/laravel/mcp/issues",
-                "source": "https://github.com/laravel/mcp"
-            },
-            "time": "2026-10-26T17:48:48+00:00",
-            "published-time": "2026-10-26T18:03:18+00:00"
         },
         {
             "name": "laravel/pail",

@@ -8,6 +8,7 @@ An opinionated [Laravel](https://laravel.com) + [Filament](https://filamentphp.c
 
 - **[Filament v5](https://filamentphp.com)** — `app` panel for login, registration, password reset, email verification, and profile; `admin` panel for Users (roles, invite, impersonate)
 - **Tapp packages** — invite, footer, maillog, auth log, auditing (Spatie permission + media library included)
+- **MCP.** Admins create Sanctum tokens on the admin panel and connect an agent to a read-only server at `/mcp/app`
 - **Nightwatch** — exception tracking and monitoring (configure after install). Queues run on a Laravel Cloud managed queue in production.
 - **[nunomaduro/essentials](https://github.com/nunomaduro/essentials)** — strict models, auto eager loading, immutable dates, and better Laravel defaults
 - **[Laravel Boost](https://github.com/laravel/boost)** — MCP server with tools for building Laravel apps with AI agents
@@ -54,6 +55,18 @@ composer test
 ```
 
 All quality checks should pass with 100% test and type coverage.
+
+## Connect an AI agent
+
+The admin panel includes an API tokens page. Only a user with the Admin role can open it. The admin panel already requires that role, and the page checks it again. Sign in at `/app/login`, open `/admin`, then open the user menu and choose API tokens.
+
+Create a token, name it, and check Application Summary Tool. Copy the token when the page shows it. That value is shown once. The same screen gives you a setup prompt and a JSON config for the App server. The URL is this app's `/mcp/app` route, using your `APP_URL`.
+
+Paste the prompt into Claude Code, Cursor, or Grok, and give the agent the token through its own secure input or MCP config. Do not paste the token into the chat. The JSON config is the HTTP MCP shape those clients already use. The token is sent as `Authorization: Bearer <token>`.
+
+The example tool returns the application name and the number of users. It does not change data. A token can call only the tools you checked. A call without that ability is refused, and so is a signed-in session that has no token.
+
+This kit does not install a tool-call log. Model changes are already on the admin auditing page. To record each MCP tool call, install `spatie/laravel-activitylog`. The token package writes that log when the package is installed.
 
 ## Post-install
 

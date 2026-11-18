@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Providers\Filament;
 
 use App\Filament\Http\Middleware\RedirectToAppLogin;
+use App\Models\User;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
@@ -13,6 +14,7 @@ use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
 use Filament\Widgets\AccountWidget;
+use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
@@ -22,6 +24,7 @@ use Illuminate\View\Middleware\ShareErrorsFromSession;
 use Tapp\FilamentAuditing\FilamentAuditingPlugin;
 use Tapp\FilamentAuthenticationLog\FilamentAuthenticationLogPlugin;
 use Tapp\FilamentMailLog\FilamentMailLogPlugin;
+use Tapp\FilamentMcp\FilamentMcpPlugin;
 
 final class AdminPanelProvider extends PanelProvider
 {
@@ -29,6 +32,11 @@ final class AdminPanelProvider extends PanelProvider
     {
         return $panel
             ->id('admin')
+            ->plugin(
+                FilamentMcpPlugin::make()->canAccess(
+                    fn (?Authenticatable $user): bool => $user instanceof User && $user->hasRole('Admin'),
+                ),
+            )
             ->path('admin')
             ->colors([
                 'primary' => Color::Amber,

@@ -8,6 +8,8 @@ Sign in at `/app/login` and register at `/app/register`. `php artisan db:seed` c
 
 The admin panel (`/admin`) has no login, registration, password reset, or profile pages. Guests are sent to the app panel to authenticate. Only users with the Admin role can open `/admin`.
 
+The admin user menu includes API tokens. That page is limited to the Admin role. It creates a Sanctum token for the read-only MCP server at `/mcp/app`. The steps for Claude Code, Cursor, and Grok are in the README section "Connect an AI agent".
+
 To set a new password, run `php artisan tinker` and save the user. The password is hashed on save:
 
 ```php
